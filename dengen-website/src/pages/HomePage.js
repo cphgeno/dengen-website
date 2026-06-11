@@ -7,16 +7,17 @@ import Footer from '../components/Footer';
 import Logos from '../components/Logos';
 
 function HomePage() {
-  return (
-    
-     <div className="px-32">
-     
-      <Navbar />
-     	  
-      <Features />      
-  
-      <Footer />
 
+  console.log(" HomePage mounted");
+
+  return (
+     
+     <div className="px-32">
+
+      
+      <Navbar />
+      <Features />
+      <Footer />
       <Logos />
 
     </div>
