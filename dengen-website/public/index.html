@@ -53,10 +53,7 @@
 
     <script type="application/ld+json">
 {
-  "@context": [
-    "https://schema.org",
-    "https://bioschemas.org"
-  ],
+  "@context": "https://schema.org",
   "@type": "Dataset",
   "@id": "https://dengen.dk/#dataset",
   "name": "DenGen Danish Population Variant Dataset",
@@ -64,13 +61,12 @@
   "url": "https://dengen.dk",
   "includedInDataCatalog": { "@id": "https://dengen.dk/#catalog" },
   "creator": { "@id": "https://dengen.dk/#organization" },
-  "keywords": ["DenGen", "Denmark", "whole genome sequencing", "SNV", "structural variants", "allele frequency"],
+  "keywords": ["DenGen", "Denmark", "whole genome sequencing", "SNV", "structural variants", "allele frequency", "Homo sapiens", "human"],
   "measurementTechnique": ["Whole genome sequencing", "Variant calling"],
   "variableMeasured": [
     { "@type": "PropertyValue", "name": "Allele Frequency" },
     { "@type": "PropertyValue", "name": "Structural Variant Frequency" }
-  ],
-  "species": { "@type": "Taxon", "name": "Homo sapiens", "identifier": "NCBITaxon:9606" }
+  ]
 }
 </script>
 
