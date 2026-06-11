@@ -52,24 +52,27 @@
     </script>
 
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Dataset",
-      "@id": "https://dengen.dk/#dataset",
-      "name": "DenGen Danish Population Variant Dataset",
-      "description": "Aggregated frequencies of single nucleotide variants and structural variants from 2,211 unrelated Danish whole genome sequencing samples.",
-      "url": "https://dengen.dk",
-      "includedInDataCatalog": { "@id": "https://dengen.dk/#catalog" },
-      "creator": { "@id": "https://dengen.dk/#organization" },
-      "keywords": ["DenGen", "Denmark", "whole genome sequencing", "SNV", "structural variants", "allele frequency"],
-      "measurementTechnique": ["Whole genome sequencing", "Variant calling"],
-      "variableMeasured": [
-        { "@type": "PropertyValue", "name": "Allele Frequency" },
-        { "@type": "PropertyValue", "name": "Structural Variant Frequency" }
-      ],
-      "species": { "@type": "Taxon", "name": "Homo sapiens", "identifier": "NCBITaxon:9606" }
-    }
-    </script>
+{
+  "@context": [
+    "https://schema.org",
+    "https://bioschemas.org"
+  ],
+  "@type": "Dataset",
+  "@id": "https://dengen.dk/#dataset",
+  "name": "DenGen Danish Population Variant Dataset",
+  "description": "Aggregated frequencies of single nucleotide variants and structural variants from 2,211 unrelated Danish whole genome sequencing samples.",
+  "url": "https://dengen.dk",
+  "includedInDataCatalog": { "@id": "https://dengen.dk/#catalog" },
+  "creator": { "@id": "https://dengen.dk/#organization" },
+  "keywords": ["DenGen", "Denmark", "whole genome sequencing", "SNV", "structural variants", "allele frequency"],
+  "measurementTechnique": ["Whole genome sequencing", "Variant calling"],
+  "variableMeasured": [
+    { "@type": "PropertyValue", "name": "Allele Frequency" },
+    { "@type": "PropertyValue", "name": "Structural Variant Frequency" }
+  ],
+  "species": { "@type": "Taxon", "name": "Homo sapiens", "identifier": "NCBITaxon:9606" }
+}
+</script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-0EYMEP67W8"></script>
