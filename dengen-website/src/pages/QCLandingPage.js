@@ -1,330 +1,309 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Layout from "./LayoutPage";
 
-const PAGE_SIZE = 25;    // rows shown per page
-const FETCH_SIZE = 200;  // rows fetched per API call
-const BASE = "https://dengen.dk/api/qc";
+const PAGE_SIZE  = 25;
+const FETCH_SIZE = 200;
+const BASE       = "https://dengen.dk/api/qc";
+
+// ── Badge colours per column type ─────────────────────────────────
+const badges = {
+  fastqc: {
+    r1: { label: "R1", bg: "var(--dg-blue-bg)", color: "var(--dg-blue)", border: "var(--dg-blue-border)" },
+    r2: { label: "R2", bg: "var(--dg-blue-bg)", color: "var(--dg-blue)", border: "var(--dg-blue-border)" },
+  },
+  alignment: { bg: "#f0fdf4", color: "#166534", border: "#bbf7d0" },
+  snp:       { bg: "#faf5ff", color: "#6b21a8", border: "#e9d5ff" },
+  sv:        { bg: "#fff7ed", color: "#9a3412", border: "#fed7aa" },
+};
+
+const Badge = ({ href, label, style }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer" style={{
+    display: "inline-flex", alignItems: "center",
+    fontSize: "11px", fontWeight: 500,
+    padding: "3px 10px", borderRadius: "99px",
+    border: `0.5px solid ${style.border}`,
+    background: style.bg, color: style.color,
+    textDecoration: "none", transition: "opacity 0.15s",
+    whiteSpace: "nowrap",
+  }}
+    onMouseOver={e => e.currentTarget.style.opacity = "0.75"}
+    onMouseOut={e => e.currentTarget.style.opacity = "1"}
+  >
+    {label}
+  </a>
+);
 
 const QCLandingPage = () => {
-  const [rows, setRows] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [query, setQuery] = useState("");
-  const [page, setPage] = useState(0);          // UI page (25 rows)
-  const [apiOffset, setApiOffset] = useState(0); // current API window start
+  const [rows, setRows]             = useState([]);
+  const [total, setTotal]           = useState(0);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState(false);
+  const [query, setQuery]           = useState("");
+  const [page, setPage]             = useState(0);
+  const [apiOffset, setApiOffset]   = useState(0);
   const [searchMode, setSearchMode] = useState(false);
 
-  // -------------------------
-  // FETCH A WINDOW OF DATA
-  // -------------------------
+  // ── Fetch window ──
   const fetchWindow = useCallback((offset) => {
-    setLoading(true);
-    setError(false);
+    setLoading(true); setError(false);
     fetch(`${BASE}?limit=${FETCH_SIZE}&offset=${offset}`)
-      .then((res) => res.json())
-      .then((json) => {
+      .then(r => r.json())
+      .then(json => {
         setRows(Array.isArray(json?.data) ? json.data : []);
         setTotal(json?.total ?? 0);
         setApiOffset(offset);
         setLoading(false);
       })
-      .catch(() => {
-        setError(true);
-        setLoading(false);
-      });
+      .catch(() => { setError(true); setLoading(false); });
   }, []);
 
-  useEffect(() => {
-    fetchWindow(0);
-  }, [fetchWindow]);
+  useEffect(() => { fetchWindow(0); }, [fetchWindow]);
 
-  // -------------------------
-  // SEARCH
-  // -------------------------
+  // ── Search ──
   useEffect(() => {
     if (!query) {
-      if (searchMode) {
-        setSearchMode(false);
-        setPage(0);
-        fetchWindow(0);
-      }
+      if (searchMode) { setSearchMode(false); setPage(0); fetchWindow(0); }
       return;
     }
-
     setSearchMode(true);
-    const timeout = setTimeout(() => {
+    const t = setTimeout(() => {
       fetch(`${BASE}/search?q=${encodeURIComponent(query)}`)
-        .then((res) => res.json())
-        .then((json) => {
-          setRows(Array.isArray(json?.data) ? json.data : []);
-          setTotal(json?.count ?? 0);
-          setPage(0);
-          setLoading(false);
-        })
-        .catch(() => {
-          setRows([]);
-          setLoading(false);
-        });
+        .then(r => r.json())
+        .then(json => { setRows(Array.isArray(json?.data) ? json.data : []); setTotal(json?.count ?? 0); setPage(0); setLoading(false); })
+        .catch(() => { setRows([]); setLoading(false); });
     }, 300);
-
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(t);
   }, [query]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // -------------------------
-  // PAGINATION LOGIC
-  // -------------------------
-  // In search mode: paginate over search results client-side
-  // In browse mode: paginate client-side within the 200-row window,
-  //   and fetch a new window when the user reaches the boundary.
-
-  const totalPages = searchMode
-    ? Math.ceil(rows.length / PAGE_SIZE)
-    : Math.ceil(total / PAGE_SIZE);
-
-  const globalPageStart = page * PAGE_SIZE; // absolute row index across all 24K
-  const localStart = globalPageStart - apiOffset;
-  const localEnd = localStart + PAGE_SIZE;
-  const pageRows = rows.slice(localStart, localEnd);
+  // ── Pagination ──
+  const totalPages      = searchMode ? Math.ceil(rows.length / PAGE_SIZE) : Math.ceil(total / PAGE_SIZE);
+  const globalPageStart = page * PAGE_SIZE;
+  const localStart      = globalPageStart - apiOffset;
+  const pageRows        = rows.slice(localStart, localStart + PAGE_SIZE);
 
   const handlePrev = () => {
     const newPage = page - 1;
-    const newGlobalStart = newPage * PAGE_SIZE;
-    if (!searchMode && newGlobalStart < apiOffset) {
-      const newOffset = Math.max(0, apiOffset - FETCH_SIZE);
-      fetchWindow(newOffset);
-    }
+    if (!searchMode && newPage * PAGE_SIZE < apiOffset) fetchWindow(Math.max(0, apiOffset - FETCH_SIZE));
     setPage(newPage);
   };
-
   const handleNext = () => {
     const newPage = page + 1;
-    const newGlobalStart = newPage * PAGE_SIZE;
-    if (!searchMode && newGlobalStart >= apiOffset + FETCH_SIZE) {
-      fetchWindow(apiOffset + FETCH_SIZE);
-    }
+    if (!searchMode && newPage * PAGE_SIZE >= apiOffset + FETCH_SIZE) fetchWindow(apiOffset + FETCH_SIZE);
     setPage(newPage);
   };
 
-  const handleQueryChange = (e) => {
-    setQuery(e.target.value);
-    setPage(0);
-  };
-
-  const handleClear = () => {
-    setQuery("");
-    setPage(0);
-  };
-
-  // Display range for footer
   const displayStart = searchMode ? page * PAGE_SIZE + 1 : globalPageStart + 1;
-  const displayEnd = searchMode
-    ? Math.min((page + 1) * PAGE_SIZE, rows.length)
-    : Math.min(globalPageStart + PAGE_SIZE, total);
+  const displayEnd   = searchMode ? Math.min((page + 1) * PAGE_SIZE, rows.length) : Math.min(globalPageStart + PAGE_SIZE, total);
   const displayTotal = searchMode ? rows.length : total;
 
-  // -------------------------
-  // RENDER
-  // -------------------------
+  // ── Status indicator ──
+  const statusColor = error ? "#ef4444" : loading ? "#f59e0b" : "#22c55e";
+  const statusLabel = error ? "Error" : loading ? "Loading…" : searchMode ? "Search" : "Live";
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-100 p-4">
-        <div className="container mx-auto max-w-6xl">
+      <div style={{ fontFamily: "var(--dg-font)" }}>
 
-          {/* HEADER */}
-          <div className="bg-white shadow-sm rounded-lg p-5 mb-4 text-center">
-            <div className="text-3xl text-green-600 mb-1">📊</div>
-            <h1 className="text-lg font-semibold text-gray-800">DenGen QC Browser</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              24K sample cohort · FastQC · Alignment · Variants · SV
-            </p>
+        {/* ── Page header ── */}
+        <div style={{ marginBottom: "28px" }}>
+          <div style={{ fontSize: "12px", color: "var(--dg-text-muted)", marginBottom: "10px" }}>
+            DenGen › Data quality portal
+          </div>
+          <h1 style={{ fontSize: "28px", fontWeight: 500, color: "var(--dg-text)", marginBottom: "8px", lineHeight: 1.2 }}>
+            DenGen QC Browser
+          </h1>
+          <p style={{ fontSize: "14px", color: "var(--dg-text-muted)", margin: 0 }}>
+            Sample-level quality control reports · FastQC · Alignment · Variants · Structural Variants
+          </p>
+          <hr style={{ border: "none", borderTop: "0.5px solid var(--dg-border)", margin: "20px 0 0" }} />
+        </div>
+
+        {/* ── Stats strip ── */}
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
+          border: "0.5px solid var(--dg-border)", borderRadius: "10px",
+          overflow: "hidden", marginBottom: "20px",
+        }}>
+          {[
+            { label: "Total samples",   value: loading ? "—" : total.toLocaleString() },
+            { label: searchMode ? "Search results" : "Loaded window", value: loading ? "—" : rows.length.toLocaleString() },
+            { label: "Page",            value: loading ? "—" : `${page + 1} / ${totalPages || 1}` },
+            { label: "Status",          value: null },
+          ].map((s, i) => (
+            <div key={i} style={{
+              padding: "16px 20px",
+              borderRight: i < 3 ? "0.5px solid var(--dg-border)" : "none",
+              background: "#fff",
+            }}>
+              <div style={{ fontSize: "11px", color: "var(--dg-text-muted)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 500 }}>
+                {s.label}
+              </div>
+              {s.value !== null ? (
+                <div style={{ fontSize: "18px", fontWeight: 500, color: "var(--dg-text)" }}>{s.value}</div>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", gap: "7px", marginTop: "4px" }}>
+                  <span style={{
+                    width: "8px", height: "8px", borderRadius: "50%",
+                    background: statusColor, display: "inline-block",
+                    boxShadow: loading ? `0 0 0 3px ${statusColor}33` : "none",
+                  }} />
+                  <span style={{ fontSize: "13px", color: "var(--dg-text)", fontWeight: 500 }}>{statusLabel}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Search bar ── */}
+        <div style={{ position: "relative", marginBottom: "16px" }}>
+          <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", fontSize: "14px", pointerEvents: "none" }}>
+            🔍
+          </span>
+          <input
+            value={query}
+            onChange={e => { setQuery(e.target.value); setPage(0); }}
+            placeholder="Search by sample ID, e.g. DENGEN000012345"
+            autoComplete="off"
+            style={{
+              width: "100%", height: "40px",
+              paddingLeft: "36px", paddingRight: query ? "36px" : "12px",
+              border: "0.5px solid var(--dg-border)", borderRadius: "8px",
+              fontSize: "13px", fontFamily: "var(--dg-font)",
+              color: "var(--dg-text)", background: "#fff",
+              outline: "none", transition: "border-color 0.15s",
+              boxSizing: "border-box",
+            }}
+            onFocus={e => e.target.style.borderColor = "var(--dg-blue)"}
+            onBlur={e => e.target.style.borderColor = "var(--dg-border)"}
+          />
+          {query && (
+            <button onClick={() => { setQuery(""); setPage(0); }} style={{
+              position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", cursor: "pointer",
+              fontSize: "18px", color: "var(--dg-text-muted)", lineHeight: 1,
+            }}>×</button>
+          )}
+        </div>
+
+        {/* ── Table ── */}
+        <div style={{
+          border: "0.5px solid var(--dg-border)",
+          borderRadius: "10px", overflow: "hidden",
+        }}>
+
+          {/* Header */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr",
+            background: "var(--dg-blue-bg)",
+            borderBottom: "0.5px solid var(--dg-border)",
+            padding: "10px 16px",
+          }}>
+            {["Sample ID", "FastQC", "Alignment", "Variants / SV"].map(h => (
+              <div key={h} style={{
+                fontSize: "10px", fontWeight: 500,
+                textTransform: "uppercase", letterSpacing: "0.08em",
+                color: "var(--dg-text-muted)",
+              }}>
+                {h}
+              </div>
+            ))}
           </div>
 
-          {/* STATS */}
-          <div className="grid grid-cols-4 gap-3 mb-4">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-xs text-gray-500 mb-1">Total samples</div>
-              <div className="text-xl font-medium text-gray-800">
-                {total.toLocaleString()}
-              </div>
+          {/* Body */}
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "60px", fontSize: "13px", color: "var(--dg-text-muted)" }}>
+              Loading QC data…
             </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-xs text-gray-500 mb-1">
-                {searchMode ? "Search results" : "Loaded window"}
-              </div>
-              <div className="text-xl font-medium text-gray-800">
-                {loading ? "—" : rows.length.toLocaleString()}
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-xs text-gray-500 mb-1">Page</div>
-              <div className="text-xl font-medium text-gray-800">
-                {loading ? "—" : `${page + 1} / ${totalPages || 1}`}
-              </div>
-            </div>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-xs text-gray-500 mb-1">Status</div>
-              <div className="flex items-center mt-1 gap-2">
-                <span
-                  className={`w-2 h-2 rounded-full inline-block ${
-                    error
-                      ? "bg-red-400"
-                      : loading
-                      ? "bg-yellow-400 animate-pulse"
-                      : "bg-green-400"
-                  }`}
-                />
-                <span className="text-sm text-gray-700">
-                  {error ? "Error" : loading ? "Loading..." : searchMode ? "Search" : "Live"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* SEARCH */}
-          <div className="relative mb-4">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">
-              🔍
-            </span>
-            <input
-              className="w-full h-10 pl-9 pr-10 border border-gray-200 rounded-lg text-sm bg-white shadow-sm focus:outline-none focus:border-gray-400 placeholder-gray-400"
-              placeholder="Search by sample ID, e.g. DENGEN000012345"
-              value={query}
-              onChange={handleQueryChange}
-              autoComplete="off"
-            />
-            {query && (
-              <button
-                onClick={handleClear}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg leading-none"
-                aria-label="Clear search"
-              >
-                ×
+          ) : error ? (
+            <div style={{ textAlign: "center", padding: "60px", fontSize: "13px", color: "#ef4444" }}>
+              Failed to load data.{" "}
+              <button onClick={() => fetchWindow(apiOffset)} style={{
+                background: "none", border: "none", cursor: "pointer",
+                color: "#ef4444", textDecoration: "underline", fontFamily: "var(--dg-font)", fontSize: "13px",
+              }}>
+                Retry
               </button>
-            )}
-          </div>
-
-          {/* TABLE */}
-          <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-
-            {/* TABLE HEADER */}
-            <div className="grid grid-cols-4 bg-gray-900 text-white px-4 py-3">
-              <div className="text-xs font-medium uppercase tracking-wider">Sample ID</div>
-              <div className="text-xs font-medium uppercase tracking-wider">FastQC</div>
-              <div className="text-xs font-medium uppercase tracking-wider">Alignment</div>
-              <div className="text-xs font-medium uppercase tracking-wider">Variants / SV</div>
             </div>
-
-            {/* TABLE BODY */}
-            {loading ? (
-              <div className="text-center py-16 text-gray-400 text-sm">
-                Loading QC data...
-              </div>
-            ) : error ? (
-              <div className="text-center py-16 text-red-400 text-sm">
-                Failed to load data.{" "}
-                <button
-                  onClick={() => fetchWindow(apiOffset)}
-                  className="underline text-red-500 hover:text-red-700"
+          ) : pageRows.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px", fontSize: "13px", color: "var(--dg-text-muted)" }}>
+              No samples found
+            </div>
+          ) : (
+            pageRows.map((row, i) => {
+              const id = row.sampleId || "NA";
+              return (
+                <div key={id} style={{
+                  display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr",
+                  padding: "10px 16px",
+                  borderBottom: "0.5px solid var(--dg-border)",
+                  alignItems: "center",
+                  background: i % 2 === 0 ? "#fff" : "#fafcff",
+                  transition: "background 0.1s",
+                }}
+                  onMouseOver={e => e.currentTarget.style.background = "var(--dg-blue-bg)"}
+                  onMouseOut={e => e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafcff"}
                 >
-                  Retry
+                  <div style={{
+                    fontFamily: "ui-monospace, 'Cascadia Code', monospace",
+                    fontSize: "12.5px", color: "var(--dg-text)", fontWeight: 500,
+                  }}>
+                    {id}
+                  </div>
+
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <Badge href={`/qc/fastqc/${id}/r1`} label="R1" style={badges.fastqc.r1} />
+                    <Badge href={`/qc/fastqc/${id}/r2`} label="R2" style={badges.fastqc.r2} />
+                  </div>
+
+                  <div>
+                    <Badge href={`/alignments/${id}`} label="Alignment" style={badges.alignment} />
+                  </div>
+
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <Badge href={`/variant/${id}`}            label="SNP" style={badges.snp} />
+                    <Badge href={`/structural-variant/${id}`} label="SV"  style={badges.sv} />
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          {/* Pagination */}
+          {!loading && !error && rows.length > 0 && (
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              padding: "12px 16px",
+              borderTop: "0.5px solid var(--dg-border)",
+              background: "var(--dg-blue-bg)",
+            }}>
+              <span style={{ fontSize: "12px", color: "var(--dg-text-muted)" }}>
+                Showing {displayStart.toLocaleString()}–{displayEnd.toLocaleString()} of {displayTotal.toLocaleString()} {searchMode ? "results" : "samples"}
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <button onClick={handlePrev} disabled={page === 0} style={{
+                  padding: "5px 14px", fontSize: "12px", fontFamily: "var(--dg-font)",
+                  border: "0.5px solid var(--dg-border)", borderRadius: "6px",
+                  background: "#fff", color: "var(--dg-text)", cursor: "pointer",
+                  opacity: page === 0 ? 0.4 : 1, transition: "opacity 0.15s",
+                }}>
+                  ← Prev
+                </button>
+                <span style={{ fontSize: "12px", color: "var(--dg-text-muted)", minWidth: "90px", textAlign: "center" }}>
+                  Page {page + 1} of {totalPages.toLocaleString()}
+                </span>
+                <button onClick={handleNext} disabled={page >= totalPages - 1} style={{
+                  padding: "5px 14px", fontSize: "12px", fontFamily: "var(--dg-font)",
+                  border: "0.5px solid var(--dg-border)", borderRadius: "6px",
+                  background: "#fff", color: "var(--dg-text)", cursor: "pointer",
+                  opacity: page >= totalPages - 1 ? 0.4 : 1, transition: "opacity 0.15s",
+                }}>
+                  Next →
                 </button>
               </div>
-            ) : pageRows.length === 0 ? (
-              <div className="text-center py-16 text-gray-400 text-sm">
-                No samples found
-              </div>
-            ) : (
-              pageRows.map((row, index) => {
-                const id = row.sampleId || "NA";
-                return (
-                  <div
-                    key={id}
-                    className={`grid grid-cols-4 px-4 py-3 border-b border-gray-100 items-center hover:bg-gray-50 transition-colors ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
-                    }`}
-                  >
-                    <div className="font-mono text-sm text-gray-800">{id}</div>
-
-                    <div className="flex gap-2">
-                      <a
-                        href={`/qc/fastqc/${id}/r1`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs px-2.5 py-1 rounded-md border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                      >
-                        R1
-                      </a>
-                      <a
-                        href={`/qc/fastqc/${id}/r2`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-xs px-2.5 py-1 rounded-md border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                      >
-                        R2
-                      </a>
-                    </div>
-
-                    <div>
-                      <a
-                        href={`/alignments/${id}`}
-                        className="inline-flex items-center text-xs px-2.5 py-1 rounded-md border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
-                      >
-                        Alignment
-                      </a>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <a
-                        href={`/variant/${id}`}
-                        className="inline-flex items-center text-xs px-2.5 py-1 rounded-md border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
-                      >
-                        SNP
-                      </a>
-                      <a
-                        href={`/structural-variant/${id}`}
-                        className="inline-flex items-center text-xs px-2.5 py-1 rounded-md border border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 transition-colors"
-                      >
-                        SV
-                      </a>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-
-            {/* PAGINATION */}
-            {!loading && !error && rows.length > 0 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-                <span className="text-sm text-gray-500">
-                  Showing {displayStart.toLocaleString()}–{displayEnd.toLocaleString()} of{" "}
-                  {displayTotal.toLocaleString()}
-                  {searchMode ? " results" : " samples"}
-                </span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handlePrev}
-                    disabled={page === 0}
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-md bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-default transition-colors"
-                  >
-                    ← Prev
-                  </button>
-                  <span className="text-sm text-gray-500 min-w-[90px] text-center">
-                    Page {page + 1} of {totalPages.toLocaleString()}
-                  </span>
-                  <button
-                    onClick={handleNext}
-                    disabled={page >= totalPages - 1}
-                    className="px-3 py-1.5 text-sm border border-gray-200 rounded-md bg-white text-gray-700 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-default transition-colors"
-                  >
-                    Next →
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
+            </div>
+          )}
         </div>
+
       </div>
     </Layout>
   );
