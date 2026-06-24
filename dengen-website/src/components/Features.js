@@ -92,9 +92,7 @@ const Features = () => {
           maxWidth: '520px',
           marginBottom: '28px',
         }}>
-          DenGen is a genomics initiative providing a comprehensive resource for studying
-          the genetic landscape of the Danish population — from allele frequencies to
-          structural variants.
+          DenGen is a genomics initiative designed to provide a comprehensive resource for understanding the genetic diversity of the Danish population.
         </p>
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
