@@ -27,6 +27,7 @@ import SearchPage from './pages/SearchPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ComingSoonPage from './pages/CommingSoonPage';
 import GA4GHPage from './pages/GA4GHPage';
+import StandardsPage from './pages/StandardsPage';
 
 
 function AppRoutes() {
@@ -62,6 +63,7 @@ function AppRoutes() {
       {/* <Route path="/publications" element={<PublicationsPage />} /> */}
       <Route path="/search" element={<SearchPage />} />
       <Route path="/ga4gh" element={<GA4GHPage />} />
+      <Route path="/standards" element={<StandardsPage />} />
       <Route path="/*" element={<NotFoundPage />} />
     </Routes>
   );
