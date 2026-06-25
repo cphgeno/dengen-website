@@ -1,242 +1,238 @@
 import React, { useState } from "react";
-import Layout from "./LayoutPage"; // Import the Layout component
+import Layout from "./LayoutPage";
 
-const DenGenStats = () => {
-
-// State to keep track of the current image index
-const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-// List of image paths
-const images = [
-
+// ── Data ──────────────────────────────────────────────────────────
+const statGroups = [
   {
-    src: "dengen.png",
-    title: "Age and Gender Distribution",
-  },
-  //{
-  //  src: "dengen_2211_merged.png",
-  //  title: "Ancestry Distribution",
-  //},
-  //{
-  //  src: "dengen_2211_merged_rotx_90.png",
-  //  title: "Ancestry Distribution",
-  //},
-  //{
-  //  src: "1000g_dengen_2211_merged.png",
-  //  title: "Ancestry Distribution with 1000 Genomes Phase3",
-  //},
-  {
-    src: "sequencing_depth_histogram_with_density.png",
-    title: "Average Sequencing Depth",
+    heading: "Cohort",
+    items: [
+      { label: "Cohort Size",                                value: "2,916" },
+      { label: "Unrelated Participants",                     value: "2,211" },
+      { label: "Average Age",                                value: "41.8 years" },
+      { label: "Gender Distribution",                        value: "47.3% XY" },
+      { label: "Countries Represented",                      value: "Denmark" },
+      { label: "Research Collaborators",                     value: "Rigshospitalet, Danish National Genome Center" },
+    ],
   },
   {
-    src: "dengen_maf_bcftools_v2.png",
-    title: "Minor Allele Frequency",
+    heading: "Variants",
+    items: [
+      { label: "SNP Variants Detected",                             value: "80,969,313" },
+      { label: "INDEL Variants Detected",                           value: "18,366,910" },
+      { label: "Avg. SNP Variants per Sample",                      value: "~4,000,000" },
+      { label: "Avg. INDEL Variants per Sample",                    value: "~1,000,000" },
+      { label: "Avg. Structural Variants per Sample",               value: "~5,000" },
+    ],
   },
   {
-    src: "dengen_variant_mean_depth_v2.png",
-    title: "Dengen Variant Mean Depth",
+    heading: "Sequencing",
+    items: [
+      { label: "Sequencing Platform",      value: "Illumina NovaSeq6000" },
+      { label: "Library Preparation",      value: "Illumina DNA PCR-free (tagmentation) kit" },
+      { label: "Sequencing Depth",         value: "52×+" },
+      { label: "Variant Calling Reference",value: "GRCh38" },
+      { label: "Sequencing Center",        value: "DGM" },
+    ],
   },
   {
-    src: "dengen_variant_mean_depth_individual_v2.png",
-    title: "Individual Mean Depth",
+    heading: "Dataset",
+    items: [
+      { label: "Number of Files",  value: "13,266 files" },
+      { label: "Dataset Size",     value: "303 TB" },
+    ],
   },
-  {
-    src: "dengen_variant_quality_v2.png",
-    title: "Dengen Variant Quality",
-  },
-  {
-    src: "dengen_variant_missingness_v2.png",
-    title: "Dengen Variant Missingess",
-  },
-  {
-    src: "dengen_variant_missingness_individual_v2.png",
-    title: "Dengen Variant Missingess Individual",
-  },
-  {
-    src: "averages.png",
-    title: "Average SNV and INDEL per sample for DenGen",
-  },
-  {
-    src: "histogram.png",
-    title: " Distribution of SNV and INDEL per Sample for DenGen",
-  }   
 ];
 
-// Function to go to the previous image
-const prevImage = () => {
-  setCurrentImageIndex((prevIndex) =>
-    prevIndex === 0 ? images.length - 1 : prevIndex - 1
-  );
-};
+const images = [
+  { src: "dengen.png",                                    title: "Age and Gender Distribution" },
+  { src: "sequencing_depth_histogram_with_density.png",  title: "Average Sequencing Depth" },
+  { src: "dengen_maf_bcftools_v2.png",                   title: "Minor Allele Frequency" },
+  { src: "dengen_variant_mean_depth_v2.png",             title: "Variant Mean Depth" },
+  { src: "dengen_variant_mean_depth_individual_v2.png",  title: "Individual Mean Depth" },
+  { src: "dengen_variant_quality_v2.png",                title: "Variant Quality" },
+  { src: "dengen_variant_missingness_v2.png",            title: "Variant Missingness" },
+  { src: "dengen_variant_missingness_individual_v2.png", title: "Variant Missingness Individual" },
+  { src: "averages.png",                                 title: "Average SNV and INDEL per Sample" },
+  { src: "histogram.png",                                title: "Distribution of SNV and INDEL per Sample" },
+];
 
-// Function to go to the next image
-const nextImage = () => {
-  setCurrentImageIndex((prevIndex) =>
-    prevIndex === images.length - 1 ? 0 : prevIndex + 1
-  );
-};
+// ── Stat card ─────────────────────────────────────────────────────
+const StatCard = ({ label, value }) => (
+  <div style={{
+    border: "0.5px solid var(--dg-border)",
+    borderRadius: "8px",
+    padding: "16px 18px",
+    background: "#fff",
+  }}>
+    <div style={{ fontSize: "12px", color: "var(--dg-text-muted)", marginBottom: "6px" }}>
+      {label}
+    </div>
+    <div style={{ fontSize: "20px", fontWeight: 500, color: "#0a3a5e", lineHeight: 1.2 }}>
+      {value}
+    </div>
+  </div>
+);
 
+// ── Main component ─────────────────────────────────────────────────
+const DenGenStats = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeGroup, setActiveGroup]             = useState("Cohort");
+
+  const prevImage = () =>
+    setCurrentImageIndex(i => (i === 0 ? images.length - 1 : i - 1));
+  const nextImage = () =>
+    setCurrentImageIndex(i => (i === images.length - 1 ? 0 : i + 1));
+
+  const currentGroup = statGroups.find(g => g.heading === activeGroup);
 
   return (
     <Layout>
 
-    <div className="container mx-auto py-8">
-      <h1 className="text-4xl font-bold text-center mb-6">DenGen In Numbers</h1>
-</div>      
-
-    <section className="bg-blue-100 py-2 text-center rounded-lg ">
-    
-    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-6">
-
-    {/* Number of Participants */}
-    <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Cohort Size</h3>
-        <p className="text-3xl font-bold text-blue-600">2,916</p>
+      {/* ── Page header ── */}
+      <div style={{ marginBottom: "32px" }}>
+        <div style={{ fontSize: "12px", color: "var(--dg-text-muted)", marginBottom: "10px" }}>
+          DenGen › Cohort statistics
+        </div>
+        <h1 style={{
+          fontSize: "28px", fontWeight: 500, color: "var(--dg-text)",
+          marginBottom: "10px", lineHeight: 1.2,
+        }}>
+          DenGen in Numbers
+        </h1>
+        <p style={{ fontSize: "14px", color: "var(--dg-text-muted)", lineHeight: 1.7, margin: 0 }}>
+          Key metrics from the DenGen whole-genome sequencing cohort.
+        </p>
+        <hr style={{ border: "none", borderTop: "0.5px solid var(--dg-border)", margin: "24px 0 0" }} />
       </div>
 
-      {/* Number of Unrelated Partipants */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Unrelated Participants</h3>
-        <p className="text-3xl font-bold text-blue-600">2,211</p>
+      {/* ── Tab strip ── */}
+      <div style={{
+        display: "flex", gap: "0",
+        borderBottom: "0.5px solid var(--dg-border)",
+        marginBottom: "24px",
+      }}>
+        {statGroups.map(g => {
+          const active = activeGroup === g.heading;
+          return (
+            <button
+              key={g.heading}
+              onClick={() => setActiveGroup(g.heading)}
+              style={{
+                background: "none", border: "none", cursor: "pointer",
+                fontFamily: "var(--dg-font)",
+                fontSize: "13px", fontWeight: active ? 500 : 400,
+                color: active ? "var(--dg-blue)" : "var(--dg-text-muted)",
+                padding: "8px 18px",
+                borderBottom: active ? "2px solid var(--dg-blue)" : "2px solid transparent",
+                marginBottom: "-1px",
+                transition: "all 0.15s",
+              }}
+            >
+              {g.heading}
+            </button>
+          );
+        })}
       </div>
 
-       {/* Number of Variants Detected */}
-       <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Average Age</h3>
-        <p className="text-3xl font-bold text-blue-600">41.8 years</p>
+      {/* ── Stat grid for active tab ── */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: "10px",
+        marginBottom: "48px",
+      }}>
+        {currentGroup.items.map((item, i) => (
+          <StatCard key={i} label={item.label} value={item.value} />
+        ))}
       </div>
 
-      {/* Number of Variants Detected */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Gender Distribution</h3>
-        <p className="text-3xl font-bold text-blue-600">47.3% XY</p>
-      </div>
+      {/* ── Image carousel ── */}
+      <div style={{ marginBottom: "48px" }}>
+        <div style={{
+          fontSize: "11px", fontWeight: 500,
+          textTransform: "uppercase", letterSpacing: "0.08em",
+          color: "var(--dg-text-muted)", marginBottom: "16px",
+        }}>
+          DenGen Statistics — {currentImageIndex + 1} / {images.length}
+        </div>
 
-      {/* Number of Variants Detected */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">SNP Variants Detected</h3>
-        <p className="text-3xl font-bold text-blue-600">80,969,313</p>
-      </div>
+        <div style={{
+          border: "0.5px solid var(--dg-border)",
+          borderRadius: "10px", overflow: "hidden", background: "#fff",
+        }}>
+          {/* Title bar */}
+          <div style={{
+            padding: "12px 18px",
+            borderBottom: "0.5px solid var(--dg-border)",
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            <span style={{ fontSize: "13px", fontWeight: 500, color: "var(--dg-text)" }}>
+              {images[currentImageIndex].title}
+            </span>
+            {/* Dot indicators */}
+            <div style={{ display: "flex", gap: "5px" }}>
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentImageIndex(i)}
+                  style={{
+                    width: i === currentImageIndex ? "16px" : "6px",
+                    height: "6px",
+                    borderRadius: "99px",
+                    background: i === currentImageIndex ? "var(--dg-blue)" : "var(--dg-border)",
+                    border: "none", cursor: "pointer", padding: 0,
+                    transition: "all 0.2s",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
 
-      {/* Number of Variants Detected */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">INDEL Variants Detected</h3>
-        <p className="text-3xl font-bold text-blue-600">18,366,910</p>
-      </div>
-
-      {/* Number of Variants Detected */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Average SNP Variants Detected per Sample</h3>
-        <p className="text-3xl font-bold text-blue-600">4,000,000 </p>
-      </div>
-
-      {/* Number of Variants Detected */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Average INDEL Variants Detected per Sample</h3>
-        <p className="text-3xl font-bold text-blue-600">1,000,000</p>
-      </div>
-
-      {/* Number of Variants Detected */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Average STRUCTURAL Variants Detected per Sample</h3>
-        <p className="text-3xl font-bold text-blue-600">5,000</p>
-      </div>
-
-      {/* Sequencing Depth */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Sequencing Depth</h3>
-        <p className="text-3xl font-bold text-blue-600">52x+</p>
-      </div>
-
-      {/* Countries Represented */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Sequencing Technologies</h3>
-        <p className="text-3xl font-bold text-blue-600">Illumina NovaSeq6000</p>
-      </div>
-
-     {/* Countries Represented */}
-     <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Run Technologies</h3>
-        <p className="text-3xl font-bold text-blue-600">Illumina DNA PCR-free (tagmentation) kit</p>
-      </div>
-
-      {/* Countries Represented */}
-     <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Sequencing Center</h3>
-        <p className="text-3xl font-bold text-blue-600">DGM</p>
-      </div>
-
-       {/* Countries Represented */}
-     <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Variant Calling Reference </h3>
-        <p className="text-3xl font-bold text-blue-600">GRCh38</p>
-      </div>
-
-      {/* Countries Represented */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-700">Number of Files </h3>
-              <p className="text-3xl font-bold text-blue-600">13.266 Files</p>
-      </div>
-
-      {/* Countries Represented */}
-     <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Dataset Size </h3>
-        <p className="text-3xl font-bold text-blue-600">303 TB</p>
-      </div>
-         
-
-      {/* Research Collaborators */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Research Collaborators</h3>
-        <p className="text-3xl font-bold text-blue-600">Rigshospitalet, Danish National Genome Center</p>
-      </div>
-
-      {/* Countries Represented */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-gray-700">Countries Represented</h3>
-        <p className="text-3xl font-bold text-blue-600">Denmark</p>
-      </div>    
-      </div>
-
-      {/* Age and Gender Distribution Image with Carousel */}
-      <div className="mt-12 bg-blue-100 p-6 rounded-lg shadow-md">
-        <h3 className="text-2xl font-semibold text-gray-700 mb-4">DenGen Statistics</h3>
-        {/* Sliding Image Card with One Image at a Time */}
-        <div className="bg-white p-6 rounded-lg transform transition-all duration-500">
-            {/* Image Title */}
-            <p className="mt-4 text-lg font-semibold text-gray-700">{images[currentImageIndex].title}</p>
-
-          <div className="relative">
-            {/* Display Image */}
+          {/* Image */}
+          <div style={{ position: "relative", padding: "24px" }}>
             <img
               src={images[currentImageIndex].src}
-              alt={`Age and Gender Distribution ${currentImageIndex + 1}`}
-              className="mx-auto rounded-lg shadow-lg w-full max-w-2xl h-auto"
+              alt={images[currentImageIndex].title}
+              style={{
+                display: "block", margin: "0 auto",
+                maxWidth: "100%", maxHeight: "420px",
+                borderRadius: "6px",
+              }}
             />
-            
-            {/* Left Arrow */}
-            <button
-              onClick={prevImage}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full shadow-md hover:bg-gray-900"
-            >
-              ←
-            </button>
-            {/* Right Arrow */}
-            <button
-              onClick={nextImage}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full shadow-md hover:bg-gray-900"
-            >
-              →
-            </button>
+
+            {/* Nav arrows */}
+            {[
+              { side: "left",  label: "←", fn: prevImage },
+              { side: "right", label: "→", fn: nextImage },
+            ].map(({ side, label, fn }) => (
+              <button
+                key={side}
+                onClick={fn}
+                style={{
+                  position: "absolute",
+                  [side]: "12px",
+                  top: "50%", transform: "translateY(-50%)",
+                  width: "34px", height: "34px", borderRadius: "50%",
+                  background: "#fff",
+                  border: "0.5px solid var(--dg-border)",
+                  boxShadow: "0 2px 8px rgba(15,31,46,0.10)",
+                  cursor: "pointer",
+                  fontSize: "16px", color: "var(--dg-text)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "border-color 0.15s",
+                }}
+                onMouseOver={e => e.currentTarget.style.borderColor = "var(--dg-blue)"}
+                onMouseOut={e => e.currentTarget.style.borderColor = "var(--dg-border)"}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
-    </section>
+
     </Layout>
   );
 };
 
-
 export default DenGenStats;
-

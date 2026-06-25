@@ -1,8 +1,9 @@
 import './App.css';
 
-import { BrowserRouter as Router, Route, Routes  } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 import { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -26,10 +27,10 @@ import SearchPage from './pages/SearchPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ComingSoonPage from './pages/CommingSoonPage';
 import GA4GHPage from './pages/GA4GHPage';
+import StandardsPage from './pages/StandardsPage';
 
 
-function App() {
-
+function AppRoutes() {
   const location = useLocation();
   useEffect(() => {
     if (typeof window.gtag === "function") {
@@ -40,33 +41,42 @@ function App() {
   }, [location]);
 
   return (
-    
-      <Routes>
-        <Route exact path="/" element={<HomePage/>} />
-        <Route path="/about" element={<AboutPage/>} />        
-	      <Route path="/qc" element={<SamplePage/>} />
-        <Route path="/landing" element={<QCLandingPage/>} />  
-	      <Route path="/structural-variant/:filename" element={<SVPage />} />         
-        <Route path="/variant/:filename" element={<VariantPage />} />
-        <Route path="/fastqc/:filename" element={<FastQCPage />} />
-        <Route path="/alignments/:filename" element={<AlignmentsPage />} />   
-        <Route path="/pipelines" element={<PipelinePage />} />
-        <Route path="/data-use-terms" element={<DataUseTermsPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/team" element={<TeamPage />} />
-        <Route path="/data-access" element={<DataAccessPage />} />
-        <Route path="/citation" element={<CitationPage />} />
-        {/*  <Route path="/funding" element={<FundingPage />} /> */}
-        <Route path="/beacon" element={<BeaconPage />} />  
-        <Route path="/comming-soon" element={<ComingSoonPage />} />
-        <Route path="/cohort-statistics" element={<DenGenStats />} />
-        {/*  <Route path="/publications" element={<PublicationsPage />} />*/}
-        <Route path="/search" element={<SearchPage />} />  
-        <Route path="/ga4gh" element={<GA4GHPage />} />
-        <Route path="/*" element={<NotFoundPage />}  />
+    <Routes>
+      <Route exact path="/" element={<HomePage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/qc" element={<SamplePage />} />
+      <Route path="/landing" element={<QCLandingPage />} />
+      <Route path="/structural-variant/:filename" element={<SVPage />} />
+      <Route path="/variant/:filename" element={<VariantPage />} />
+      <Route path="/fastqc/:filename" element={<FastQCPage />} />
+      <Route path="/alignments/:filename" element={<AlignmentsPage />} />
+      <Route path="/pipelines" element={<PipelinePage />} />
+      <Route path="/data-use-terms" element={<DataUseTermsPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/team" element={<TeamPage />} />
+      <Route path="/data-access" element={<DataAccessPage />} />
+      <Route path="/citation" element={<CitationPage />} />
+      {/* <Route path="/funding" element={<FundingPage />} /> */}
+      <Route path="/beacon" element={<BeaconPage />} />
+      <Route path="/comming-soon" element={<ComingSoonPage />} />
+      <Route path="/cohort-statistics" element={<DenGenStats />} />
+      {/* <Route path="/publications" element={<PublicationsPage />} /> */}
+      <Route path="/search" element={<SearchPage />} />
+      <Route path="/ga4gh" element={<GA4GHPage />} />
+      <Route path="/standards" element={<StandardsPage />} />
+      <Route path="/*" element={<NotFoundPage />} />
+    </Routes>
+  );
+}
 
-      </Routes>
-  
+
+function App() {
+  return (
+    <HelmetProvider>
+      <Router>
+        <AppRoutes />
+      </Router>
+    </HelmetProvider>
   );
 }
 
