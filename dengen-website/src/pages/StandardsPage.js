@@ -283,7 +283,7 @@ function StandardsPage() {
           {/* ── Bioschemas ── */}
           <SectionHeading id="bioschemas">Bioschemas</SectionHeading>
           <LogoCard
-            src="https://bioschemas.org/images/square_logo2.png"
+            src="https://bioschemas.org/assets/img/logo_color.png"
             alt="Bioschemas Logo"
             href="https://bioschemas.org/"
             height={56}
@@ -319,7 +319,7 @@ function StandardsPage() {
           {/* ── ELIXIR ── */}
           <SectionHeading id="elixir">ELIXIR / bio.tools</SectionHeading>
           <LogoCard
-            src="https://elixir-europe.org/sites/default/files/images/logo-elixir-no-bg.png"
+            src="https://elixir-europe.org/sites/default/files/elixir_logo_0.png"
             alt="ELIXIR Logo"
             href="https://elixir-europe.org/"
             height={56}
