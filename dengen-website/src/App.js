@@ -64,7 +64,7 @@ function AppRoutes() {
       <Route path="/search" element={<SearchPage />} />
       <Route path="/ga4gh" element={<GA4GHPage />} />
       <Route path="/standards" element={<StandardsPage />} />
-      <Route path="/data-use-ontology" element={<StandardsPage />} />
+      <Route path="/data-use-ontology" element={<DUOPage />} />
       <Route path="/*" element={<NotFoundPage />} />
     </Routes>
   );
