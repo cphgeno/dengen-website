@@ -28,7 +28,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import ComingSoonPage from './pages/CommingSoonPage';
 import GA4GHPage from './pages/GA4GHPage';
 import StandardsPage from './pages/StandardsPage';
-
+import DUOPage from './pages/DUOPage';
 
 function AppRoutes() {
   const location = useLocation();
@@ -64,6 +64,7 @@ function AppRoutes() {
       <Route path="/search" element={<SearchPage />} />
       <Route path="/ga4gh" element={<GA4GHPage />} />
       <Route path="/standards" element={<StandardsPage />} />
+      <Route path="/data-use-ontology" element={<StandardsPage />} />
       <Route path="/*" element={<NotFoundPage />} />
     </Routes>
   );
