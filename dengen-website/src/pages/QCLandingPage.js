@@ -256,12 +256,12 @@ const QCLandingPage = () => {
                   </div>
 
                   <div>
-                    <Badge href={`/qc/alignment/${id}`} label="Alignment" style={badges.alignment} />
+                    <Badge href={`/alignments/${id}`} label="Alignment" style={badges.alignment} />
                   </div>
 
                   <div style={{ display: "flex", gap: "6px" }}>
-                    <Badge href={`/qc/variants/${id}`} label="SNP" style={badges.snp} />
-                    <Badge href={`/qc/sv/${id}`}       label="SV"  style={badges.sv} />
+                    <Badge href={`/variant/${id}`} label="SNP" style={badges.snp} />
+                    <Badge href={`/qc/sv/${id}`}   label="SV"  style={badges.sv} />
                   </div>
                 </div>
               );
