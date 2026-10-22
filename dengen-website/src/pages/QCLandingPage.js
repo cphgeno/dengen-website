@@ -3,7 +3,7 @@ import Layout from "./LayoutPage";
 
 const PAGE_SIZE  = 25;
 const FETCH_SIZE = 200;
-const BASE       = "https://dengen.dk/api/qc";
+const BASE       = "/api/qc";
 
 // ── Badge colours per column type ─────────────────────────────────
 const badges = {
@@ -256,12 +256,12 @@ const QCLandingPage = () => {
                   </div>
 
                   <div>
-                    <Badge href={`/alignments/${id}`} label="Alignment" style={badges.alignment} />
+                    <Badge href={`/qc/alignment/${id}`} label="Alignment" style={badges.alignment} />
                   </div>
 
                   <div style={{ display: "flex", gap: "6px" }}>
-                    <Badge href={`/variant/${id}`}            label="SNP" style={badges.snp} />
-                    <Badge href={`/structural-variant/${id}`} label="SV"  style={badges.sv} />
+                    <Badge href={`/qc/variants/${id}`} label="SNP" style={badges.snp} />
+                    <Badge href={`/qc/sv/${id}`}       label="SV"  style={badges.sv} />
                   </div>
                 </div>
               );
