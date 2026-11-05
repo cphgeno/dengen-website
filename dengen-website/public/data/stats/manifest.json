@@ -1,0 +1,329 @@
+{
+  "dataset": {
+    "name": "DenGen",
+    "version": "v1",
+    "samples": 23058,
+    "generated": "2026-11-05"
+  },
+  "conventions": [
+    "Every file is a JSON array of row objects; missing values are null.",
+    "Files with a 'contig' column hold one row per contig (chr1..chr22, chrX, chrY) plus the roll-ups 'autosomes' (chr1-22) and 'all'. Show 'autosomes' by default.",
+    "Variant statistics describe the full joint call set (biallelic SNVs and short indels with at least one alternate allele), not the Beacon release (AC >= 5 and AF >= 0.1%).",
+    "Per-sample figures are published as histograms and summaries only; there are no per-sample rows.",
+    "Histogram windows run from the 0.1th to the 99.9th percentile; samples outside the window are counted in n_below and n_above of the matching summary file.",
+    "chrX and chrY are not ploidy-aware: allele numbers there are inflated and their low-frequency calls have a very low Ts/Tv. Keep them out of headline numbers or label them as preliminary."
+  ],
+  "sections": [
+    {"id": "callset", "title": "Call set overview"},
+    {"id": "frequency", "title": "Allele frequency"},
+    {"id": "quality", "title": "Variant quality"},
+    {"id": "samples", "title": "Per-sample variant statistics"},
+    {"id": "alignment", "title": "Alignment quality"}
+  ],
+  "files": [
+    {
+      "id": "variant_counts",
+      "file": "variant_counts.json",
+      "section": "callset",
+      "title": "Variants per contig",
+      "description": "Number of SNVs, indels and MNPs per contig, singleton share, Ts/Tv of SNVs, contig length and variants per Mb.",
+      "source": "Beacon sites-only VCFs (AC, AN from dense call_stats)",
+      "chart": "table, bar chart of records_per_mb by contig",
+      "columns": {
+        "contig": "chr1..chr22, chrX, chrY, autosomes, all",
+        "snp": "single-nucleotide variants",
+        "indel": "insertions and deletions (REF and ALT of different length)",
+        "mnp": "same-length multi-base variants (0 in this call set)",
+        "records": "snp + indel + mnp",
+        "singleton_snp": "SNVs with minor allele count 1",
+        "singleton_indel": "indels with minor allele count 1",
+        "singleton_pct": "percent of records that are singletons",
+        "ts": "transition SNVs", "tv": "transversion SNVs", "titv_snp": "ts / tv",
+        "length_bp": "contig length from the VCF header",
+        "records_per_mb": "records per megabase"
+      },
+      "notes": ["Multiallelic sites are split into biallelic records, so there is no multiallelic count."]
+    },
+    {
+      "id": "titv_by_class",
+      "file": "titv_by_class.json",
+      "section": "quality",
+      "title": "Ts/Tv by allele-frequency class",
+      "description": "Transition/transversion ratio of SNVs overall and within each frequency class.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "bar chart of titv by class, one series per contig group",
+      "columns": {
+        "contig": "contig or roll-up",
+        "class": "all, singleton, doubleton, rare, low_frequency, common, very_common, monomorphic_alt",
+        "ts": "transitions", "tv": "transversions", "titv": "ts / tv"
+      },
+      "notes": [
+        "Classes follow maf_classes: singleton MAC 1; doubleton MAC 2; rare MAC >= 3 and MAF < 0.1%; low_frequency 0.1-1%; common 1-5%; very_common >= 5%.",
+        "Ts/Tv falls steeply toward rare variants, the usual sign of false positives among rare calls; present by class and not as one headline value."
+      ]
+    },
+    {
+      "id": "substitution_types_6",
+      "file": "substitution_types_6.json",
+      "section": "callset",
+      "title": "SNV substitution spectrum (6 classes)",
+      "description": "Share of SNVs in the six strand-collapsed substitution classes, for all variants and for singletons only.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "grouped bar chart, scope all vs singleton",
+      "columns": {
+        "contig": "contig or roll-up",
+        "scope": "all or singleton",
+        "substitution": "C>A, C>G, C>T, T>A, T>C, T>G (pyrimidine reference)",
+        "count": "number of SNVs",
+        "pct_of_scope": "percent of the scope total"
+      },
+      "notes": ["SNVs with non-ACGT alleles are excluded."]
+    },
+    {
+      "id": "substitution_types",
+      "file": "substitution_types.json",
+      "section": "callset",
+      "title": "SNV substitution spectrum (12 classes)",
+      "description": "The same spectrum before strand collapsing: all twelve REF>ALT substitutions.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "bar chart",
+      "columns": {
+        "contig": "contig or roll-up",
+        "scope": "all or singleton",
+        "substitution": "REF>ALT, for example A>G",
+        "count": "number of SNVs",
+        "pct_of_scope": "percent of the scope total"
+      },
+      "notes": []
+    },
+    {
+      "id": "indel_length",
+      "file": "indel_length.json",
+      "section": "callset",
+      "title": "Indel length distribution",
+      "description": "Number of indels by signed length (insertions positive, deletions negative).",
+      "source": "Beacon sites-only VCFs",
+      "chart": "bar chart over length, log y-axis optional",
+      "columns": {
+        "contig": "contig or roll-up",
+        "scope": "all or singleton",
+        "length": "len(ALT) - len(REF), clipped to -51..51; 51 means more than 50 bp inserted, -51 more than 50 bp deleted",
+        "count": "number of indels"
+      },
+      "notes": ["The largest file; request only 'autosomes' or 'all' for the default view."]
+    },
+    {
+      "id": "maf_classes",
+      "file": "maf_classes.json",
+      "section": "frequency",
+      "title": "Variants by frequency class",
+      "description": "Number and share of variant sites in each minor-allele-frequency class, for SNVs, indels and all.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "stacked horizontal bar (percent of type)",
+      "columns": {
+        "type": "snp, indel, all",
+        "class": "monomorphic_alt, singleton, doubleton, rare, low_frequency, common, very_common",
+        "count": "number of sites", "pct_of_type": "percent of the type's sites"
+      },
+      "notes": ["MAF is folded: min(AF, 1 - AF) with AF = AC / AN.", "The contigs included are listed in maf_summary.tsv on the cluster."]
+    },
+    {
+      "id": "maf_log_hist",
+      "file": "maf_log_hist.json",
+      "section": "frequency",
+      "title": "Minor allele frequency spectrum",
+      "description": "Variant sites per MAF bin on a log scale, four bins per decade.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "stacked histogram on a log x-axis, SNV and indel",
+      "columns": {
+        "type": "snp, indel, all",
+        "maf_lower": "lower bin edge", "maf_upper": "upper bin edge (the last bin is capped at 0.5 when drawn)",
+        "count": "number of sites"
+      },
+      "notes": []
+    },
+    {
+      "id": "maf_linear_common",
+      "file": "maf_linear_common.json",
+      "section": "frequency",
+      "title": "Common-variant frequency spectrum",
+      "description": "Variant sites per MAF bin for MAF of 1% and above, in 1% bins.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "histogram on a linear axis",
+      "columns": {
+        "type": "snp, indel, all",
+        "maf_lower": "lower bin edge", "maf_upper": "upper bin edge", "count": "number of sites"
+      },
+      "notes": []
+    },
+    {
+      "id": "missingness_hist",
+      "file": "missingness_hist.json",
+      "section": "quality",
+      "title": "Variant missingness",
+      "description": "Variant sites by missingness, 1 - AN / (2N), in 1% bins.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "histogram with log y-axis; cumulative call-rate curve can be derived",
+      "columns": {
+        "type": "snp, indel, all",
+        "miss_lower": "lower bin edge (fraction)", "miss_upper": "upper bin edge (fraction)",
+        "count": "number of sites"
+      },
+      "notes": ["Autosomes only: haploid calls on chrX and chrY lower AN for reasons other than missing data."]
+    },
+    {
+      "id": "missingness_summary",
+      "file": "missingness_summary.json",
+      "section": "quality",
+      "title": "Variant call-rate summary",
+      "description": "Share of sites that are fully called and that reach call rates of 99, 95, 90 and 50 percent.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "table or small bar chart",
+      "columns": {
+        "type": "snp, indel, all, plus bookkeeping rows (bad_records_skipped, an_gt_2n_clamped)",
+        "records": "number of sites",
+        "pct_complete": "percent of sites with AN = 2N",
+        "pct_callrate_ge_99": "percent of sites with call rate >= 99%",
+        "pct_callrate_ge_95": "percent of sites with call rate >= 95%",
+        "pct_callrate_ge_90": "percent of sites with call rate >= 90%",
+        "pct_callrate_ge_50": "percent of sites with call rate >= 50%",
+        "mean_missingness_pct": "mean missingness in percent"
+      },
+      "notes": ["Skip the bookkeeping rows when drawing."]
+    },
+    {
+      "id": "missingness_by_contig",
+      "file": "missingness_by_contig.json",
+      "section": "quality",
+      "title": "Missingness by contig",
+      "description": "Fully called share and mean missingness per autosome.",
+      "source": "Beacon sites-only VCFs",
+      "chart": "bar chart by contig",
+      "columns": {
+        "contig": "chr1..chr22", "records": "number of sites",
+        "pct_complete": "percent of sites with AN = 2N",
+        "mean_missingness_pct": "mean missingness in percent"
+      },
+      "notes": []
+    },
+    {
+      "id": "qual_cohort",
+      "file": "bcf_stats_23K.qual_cohort.json",
+      "section": "quality",
+      "title": "Variant QUAL and Ts/Tv by QUAL (raw calls)",
+      "description": "QUAL distribution of the per-sample raw calls summed over all samples, with transitions and transversions per QUAL value.",
+      "source": "per-sample bcftools stats, before joint calling",
+      "chart": "cumulative curve over QUAL (log x); Ts/Tv by QUAL bin",
+      "columns": {
+        "quality": "QUAL value (bcftools bins)",
+        "snps": "SNV calls", "ts": "transitions", "tv": "transversions", "indels": "indel calls"
+      },
+      "notes": ["Raw per-sample HaplotypeCaller calls, not the joint call set. Label as 'raw calls'."]
+    },
+    {
+      "id": "vds_hist",
+      "file": "vds_hist.json",
+      "section": "samples",
+      "title": "Per-sample variants, joint call set (histograms)",
+      "description": "Distribution across samples of variants per sample, Ts/Tv, het/hom ratio and singletons per sample.",
+      "source": "joint call set (VDS), biallelic variants with at least one alternate allele",
+      "chart": "one histogram per metric",
+      "columns": {"metric": "metric name", "bin_lower": "lower bin edge", "bin_upper": "upper bin edge", "count": "number of samples"},
+      "metrics": {
+        "snp_sites": "SNVs per sample",
+        "indel_sites": "indels per sample",
+        "snp_ti_tv": "SNV Ts/Tv per sample",
+        "snp_het_hom": "SNV heterozygous/homozygous-alternate ratio per sample",
+        "snp_singletons": "SNV singletons per sample",
+        "indel_singletons": "indel singletons per sample"
+      },
+      "notes": ["Singleton counts are strongly skewed; consider a log x-axis."]
+    },
+    {
+      "id": "vds_summary",
+      "file": "vds_summary.json",
+      "section": "samples",
+      "title": "Per-sample variants, joint call set (summary)",
+      "description": "Mean, standard deviation, quartiles and the 1st and 99th percentiles of each per-sample metric.",
+      "source": "joint call set (VDS)",
+      "chart": "table; n_below and n_above give the samples outside the histogram window",
+      "columns": {
+        "metric": "metric name", "n": "samples with a value", "n_missing": "samples without a value",
+        "mean": "mean", "sd": "standard deviation",
+        "p1": "1st percentile", "p25": "25th percentile", "median": "median", "p75": "75th percentile", "p99": "99th percentile",
+        "range_lower": "histogram window start", "range_upper": "histogram window end",
+        "n_below": "samples below the window", "n_above": "samples above the window"
+      },
+      "notes": []
+    },
+    {
+      "id": "raw_calls_hist",
+      "file": "raw_calls_hist.json",
+      "section": "samples",
+      "title": "Per-sample variants, raw calls (histograms)",
+      "description": "Distribution across samples of raw-call variant counts, Ts/Tv and the share of low-QUAL SNV and indel calls.",
+      "source": "per-sample bcftools stats, before joint calling",
+      "chart": "one histogram per metric",
+      "columns": {"metric": "metric name", "bin_lower": "lower bin edge", "bin_upper": "upper bin edge", "count": "number of samples"},
+      "metrics": {
+        "snps": "SNV calls per sample",
+        "indels": "indel calls per sample",
+        "tstv": "SNV Ts/Tv per sample",
+        "pct_snp_qual_lt30": "percent of SNV calls with QUAL below 30",
+        "pct_indel_qual_lt30": "percent of indel calls with QUAL below 30"
+      },
+      "notes": ["Raw per-sample calls, not the joint call set; counts differ from vds_hist. Label as 'raw calls'."]
+    },
+    {
+      "id": "raw_calls_summary",
+      "file": "raw_calls_summary.json",
+      "section": "samples",
+      "title": "Per-sample variants, raw calls (summary)",
+      "description": "Summary statistics of the raw-call metrics.",
+      "source": "per-sample bcftools stats",
+      "chart": "table",
+      "columns": {"metric": "metric name", "n": "samples", "n_missing": "samples without a value", "mean": "mean", "sd": "standard deviation",
+                  "p1": "1st percentile", "p25": "25th percentile", "median": "median", "p75": "75th percentile", "p99": "99th percentile",
+                  "range_lower": "histogram window start", "range_upper": "histogram window end", "n_below": "samples below the window", "n_above": "samples above the window"},
+      "notes": []
+    },
+    {
+      "id": "alignment_hist",
+      "file": "alignment_hist.json",
+      "section": "alignment",
+      "title": "Alignment quality per sample (histograms)",
+      "description": "Distribution across samples of sequencing yield, mapping, duplication, pairing, error rate, base quality, read length and insert size.",
+      "source": "samtools stats of the per-sample alignments",
+      "chart": "one histogram per metric",
+      "columns": {"metric": "metric name", "bin_lower": "lower bin edge", "bin_upper": "upper bin edge", "count": "number of samples"},
+      "metrics": {
+        "yield_gb": "mapped bases (Gb)",
+        "raw_reads": "total reads",
+        "pct_mapped": "percent of reads mapped",
+        "pct_duplicated": "percent of reads marked duplicate",
+        "pct_properly_paired": "percent of reads properly paired",
+        "pct_mapq0": "percent of reads with mapping quality 0",
+        "error_rate_pct": "mismatch error rate (percent)",
+        "avg_base_quality": "average base quality",
+        "avg_read_length": "average read length (bp)",
+        "insert_mean": "mean insert size (bp)",
+        "insert_sd": "insert size standard deviation (bp)",
+        "pct_pairs_diff_chr": "percent of pairs mapping to different chromosomes"
+      },
+      "notes": ["Available for 22,960 of the 23,058 samples; n and n_missing in alignment_summary give the exact numbers."]
+    },
+    {
+      "id": "alignment_summary",
+      "file": "alignment_summary.json",
+      "section": "alignment",
+      "title": "Alignment quality per sample (summary)",
+      "description": "Summary statistics of the alignment metrics.",
+      "source": "samtools stats",
+      "chart": "table",
+      "columns": {"metric": "metric name", "n": "samples", "n_missing": "samples without a value", "mean": "mean", "sd": "standard deviation",
+                  "p1": "1st percentile", "p25": "25th percentile", "median": "median", "p75": "75th percentile", "p99": "99th percentile",
+                  "range_lower": "histogram window start", "range_upper": "histogram window end", "n_below": "samples below the window", "n_above": "samples above the window"},
+      "notes": []
+    }
+  ]
+}

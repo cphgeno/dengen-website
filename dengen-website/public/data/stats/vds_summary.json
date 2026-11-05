@@ -1,0 +1,8 @@
+[
+{"metric":"snp_sites","n":23058,"n_missing":0,"mean":4.20417e+06,"sd":108253,"p1":4.0907e+06,"p25":4.15059e+06,"median":4.17545e+06,"p75":4.23086e+06,"p99":4.7543e+06,"range_lower":4.02168e+06,"range_upper":5.10597e+06,"n_below":24,"n_above":24},
+{"metric":"indel_sites","n":23058,"n_missing":0,"mean":1.05151e+06,"sd":31241,"p1":989439,"p25":1.03916e+06,"median":1.05267e+06,"p75":1.06213e+06,"p99":1.19873e+06,"range_lower":970362,"range_upper":1.29479e+06,"n_below":24,"n_above":24},
+{"metric":"snp_ti_tv","n":23058,"n_missing":0,"mean":1.89167,"sd":0.0232676,"p1":1.8518,"p25":1.8756,"median":1.8837,"p75":1.9126,"p99":1.938,"range_lower":1.79224,"range_upper":1.94839,"n_below":24,"n_above":24},
+{"metric":"snp_het_hom","n":23058,"n_missing":0,"mean":1.74558,"sd":0.0992008,"p1":1.47416,"p25":1.696,"median":1.7434,"p75":1.7784,"p99":2.12215,"range_lower":1.27393,"range_upper":2.55601,"n_below":24,"n_above":24},
+{"metric":"snp_singletons","n":23058,"n_missing":0,"mean":6714.19,"sd":7711.05,"p1":891.57,"p25":3209,"median":4790.5,"p75":7592.75,"p99":32454.8,"range_lower":510.057,"range_upper":73341.8,"n_below":24,"n_above":24},
+{"metric":"indel_singletons","n":23058,"n_missing":0,"mean":1470.8,"sd":1443.46,"p1":329.57,"p25":924,"median":1236,"p75":1728,"p99":4850.58,"range_lower":207.285,"range_upper":12446.4,"n_below":24,"n_above":24}
+]

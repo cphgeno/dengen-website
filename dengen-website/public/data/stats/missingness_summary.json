@@ -1,0 +1,7 @@
+[
+{"type":"snp","records":313994794,"pct_complete":80.091,"pct_callrate_ge_99":97.846,"pct_callrate_ge_95":99.098,"pct_callrate_ge_90":99.366,"pct_callrate_ge_50":99.814,"mean_missingness_pct":0.3042},
+{"type":"indel","records":64846301,"pct_complete":42.728,"pct_callrate_ge_99":83.110,"pct_callrate_ge_95":92.381,"pct_callrate_ge_90":94.802,"pct_callrate_ge_50":98.729,"mean_missingness_pct":2.2844},
+{"type":"all","records":378841095,"pct_complete":73.696,"pct_callrate_ge_99":95.324,"pct_callrate_ge_95":97.948,"pct_callrate_ge_90":98.585,"pct_callrate_ge_50":99.629,"mean_missingness_pct":0.6432},
+{"type":"bad_records_skipped","records":0,"pct_complete":null,"pct_callrate_ge_99":null,"pct_callrate_ge_95":null,"pct_callrate_ge_90":null,"pct_callrate_ge_50":null,"mean_missingness_pct":null},
+{"type":"an_gt_2n_clamped","records":0,"pct_complete":null,"pct_callrate_ge_99":null,"pct_callrate_ge_95":null,"pct_callrate_ge_90":null,"pct_callrate_ge_50":null,"mean_missingness_pct":null}
+]

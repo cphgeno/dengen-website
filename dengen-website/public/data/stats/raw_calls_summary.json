@@ -1,0 +1,7 @@
+[
+{"metric":"snps","n":23058,"n_missing":0,"mean":4.92633e+06,"sd":414187,"p1":4.22169e+06,"p25":4.82319e+06,"median":4.97364e+06,"p75":5.12066e+06,"p99":5.88147e+06,"range_lower":4.17718e+06,"range_upper":7.34078e+06,"n_below":24,"n_above":24},
+{"metric":"indels","n":23058,"n_missing":0,"mean":1.09808e+06,"sd":50089.6,"p1":987525,"p25":1.10038e+06,"median":1.11166e+06,"p75":1.12134e+06,"p99":1.22958e+06,"range_lower":973726,"range_upper":1.32642e+06,"n_below":24,"n_above":24},
+{"metric":"tstv","n":23058,"n_missing":0,"mean":1.45962,"sd":0.266173,"p1":1.06016,"p25":1.2568,"median":1.3273,"p75":1.7114,"p99":1.8986,"range_lower":0.786384,"range_upper":1.91369,"n_below":24,"n_above":24},
+{"metric":"pct_snp_qual_lt30","n":23058,"n_missing":0,"mean":14.8708,"sd":6.42773,"p1":3.18987,"p25":13.2607,"median":16.2233,"p75":18.6054,"p99":27.8208,"range_lower":2.85124,"range_upper":44.4274,"n_below":24,"n_above":24},
+{"metric":"pct_indel_qual_lt30","n":23058,"n_missing":0,"mean":11.4624,"sd":3.2806,"p1":4.47578,"p25":11.0779,"median":12.402,"p75":13.392,"p99":17.1312,"range_lower":3.81363,"range_upper":21.5741,"n_below":24,"n_above":24}
+]
